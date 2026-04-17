@@ -10,6 +10,6 @@ jobs:
   run-shared-ci:
     uses: Bastien-DA/shared-workflows/.github/workflows/dotnet-sonar-ci.yml@main
     with:
-      sonar-project-key: 'Bastien-DA_Template-Dotnet-Mongo-Api'
+      sonar-project-key: 'Bastien-DA_dotnet-sql-api-template
       dotnet-version: '10.0.x'
     secrets: inherit
