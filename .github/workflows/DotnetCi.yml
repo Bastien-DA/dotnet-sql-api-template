@@ -1,0 +1,15 @@
+name: .Net Ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  run-shared-ci:
+    uses: Bastien-DA/shared-workflows/.github/workflows/dotnet-sonar-ci.yml@main
+    with:
+      sonar-project-key: 'Bastien-DA_Template-Dotnet-Mongo-Api'
+      dotnet-version: '10.0.x'
+    secrets: inherit
