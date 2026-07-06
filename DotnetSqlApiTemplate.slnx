@@ -3,6 +3,7 @@
     <Project Path="src/Api/Api.csproj" />
     <Project Path="src/Domain/Domain.csproj" />
     <Project Path="src/Infrastructure/Infrastructure.csproj" />
+    <Project Path="src/MigrationService/MigrationService.csproj" />
     <Project Path="src/ServiceDefaults/ServiceDefaults.csproj" />
     <Project Path="src/AppHost/AppHost.csproj" />
     <File Path="src/Directory.Packages.props"/>

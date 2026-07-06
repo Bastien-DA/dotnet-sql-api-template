@@ -9,4 +9,7 @@ public static class UserMappingExtensions
 
     public static User ToModel(this CreateUserRequest request) =>
         User.Create(request.Email, request.FirstName, request.LastName);
+    
+    public static User ToModel(this UpdateUserRequest request, Guid id) =>
+        User.FromPersistence(id, request.Email, request.FirstName, request.LastName, DateTime.UtcNow);
 }

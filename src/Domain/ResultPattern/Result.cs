@@ -19,12 +19,18 @@ public record Result
 
 public record Result<T> : Result
 {
-    public T? Value { get; }
+    public T Value => IsSuccess 
+        ? field! 
+        : throw new InvalidOperationException("You can't get the value of an error result.");
 
-    private Result(T value) : base(true, null) => Value = value;
+    private Result(T value) : base(true, null) 
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        Value = value;
+    }
+
     private Result(Error error) : base(false, error) { }
 
     public static implicit operator Result<T>(T value) => new(value);
-
     public static implicit operator Result<T>(Error error) => new(error);
 }

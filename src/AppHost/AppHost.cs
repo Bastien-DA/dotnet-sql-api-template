@@ -6,8 +6,12 @@ var postgres = builder.AddPostgres("postgres")
 
 var appdb = postgres.AddDatabase("appdb");
 
-builder.AddProject<Projects.Api>("api")
+var migrations = builder.AddProject<Projects.MigrationService>("migrations")
     .WithReference(appdb)
     .WaitFor(appdb);
+
+builder.AddProject<Projects.Api>("api")
+    .WithReference(appdb)
+    .WaitForCompletion(migrations);
 
 builder.Build().Run();

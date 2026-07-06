@@ -1,7 +1,10 @@
 using Domain.ResultPattern;
 using Domain.Users;
 using Infrastructure.Persistence;
+using Infrastructure.Users.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Npgsql;
 
 namespace Infrastructure.Users;
 
@@ -9,7 +12,7 @@ public class UserDbAction(AppDbContext dbContext) : IUserDbAction
 {
     public async Task<Result<User?>> GetUserById(Guid id, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
+        UserEntity? user = await dbContext.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
@@ -18,7 +21,7 @@ public class UserDbAction(AppDbContext dbContext) : IUserDbAction
 
     public async Task<List<User>> GetAllUsers(CancellationToken cancellationToken)
     {
-        var users = await dbContext.Users
+        List<User> users = await dbContext.Users
             .AsNoTracking()
             .Select(u => u.ToModel())
             .ToListAsync(cancellationToken);
@@ -26,19 +29,26 @@ public class UserDbAction(AppDbContext dbContext) : IUserDbAction
         return users;
     }
 
-    public async Task<Result<User?>> CreateUser(User user, CancellationToken cancellationToken)
+    public async Task<Result<User>> CreateUser(User user, CancellationToken cancellationToken)
     {
-        var newUser = await dbContext.Users
+        EntityEntry<UserEntity> newUser = await dbContext.Users
             .AddAsync(user.ToEntity(), cancellationToken);
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        return newUser?.Entity.ToModel();
+        
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        {
+            return UserErrors.EmailAlreadyUsed(user.Email);
+        }
+        
+        return newUser.Entity.ToModel();
     }
 
     public async Task<Result<User>> UpdateUser(User user, CancellationToken cancellationToken)                                         
     {                                                                                                                          
-        var rows = await dbContext.Users                                                                                       
+        int rows = await dbContext.Users                                                                                       
             .Where(u => u.Id == user.Id)                                                                                       
             .ExecuteUpdateAsync(setters => setters                                                                             
                     .SetProperty(u => u.Email, user.Email)                                                                         
@@ -46,11 +56,15 @@ public class UserDbAction(AppDbContext dbContext) : IUserDbAction
                     .SetProperty(u => u.LastName, user.LastName),                                                                  
                 cancellationToken);                                                                                            
                                                                                                                              
-        return rows == 0 ? throw new InvalidOperationException($"User {user.Id} not found.") : user;
+        return rows == 0 ? UserErrors.NotFound(user.Id) : user;
     }    
 
-    public Task<Result> DeleteUser(Guid id, CancellationToken cancellationToken)
+    public async Task<Result> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        int rows = await dbContext.Users
+            .Where(u => u.Id == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return rows > 0 ? Result.Success() : UserErrors.NotFound(id);
     }
 }
