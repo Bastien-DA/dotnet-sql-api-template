@@ -12,6 +12,10 @@
     <Project Path="src/AppHost/AppHost.csproj" />
   </Folder>
   <Folder Name="/test/" />
+  <Folder Name="/test/integration/">
+    <File Path="test/integration/Directory.Build.props" />
+    <Project Path="test/integration/Api.Integration.Test/Api.Integration.Test.csproj" />
+  </Folder>
   <Folder Name="/test/unit/">
     <File Path="test/unit/Directory.Build.props" />
     <Project Path="test/unit/Api.Tests/Api.Tests.csproj" />
