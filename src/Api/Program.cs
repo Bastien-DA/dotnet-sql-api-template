@@ -1,4 +1,5 @@
 using Domain.Users;
+using Infrastructure;
 using Infrastructure.Persistence;
 using Infrastructure.Users;
 using Scalar.AspNetCore;
@@ -11,9 +12,7 @@ builder.AddServiceDefaults();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.AddNpgsqlDbContext<AppDbContext>(connectionName: "appdb");
-
-builder.Services.AddTransient<IUserDbAction, UserDbAction>();
+builder.AddInfrastructure();
 
 builder.Services.AddProblemDetails();
 

@@ -41,9 +41,9 @@ public class UsersController(IUserDbAction users) : ControllerBase
     public async Task<ActionResult<UserResponse>> Create([FromBody] CreateUserRequest request, CancellationToken ct)
     {
         Result<User> createdUser = await users.CreateUser(request.ToModel(), ct);
-        int userErrorType  = GetErrorType(createdUser.Error!.Type);
         if (!createdUser.IsSuccess)
         {
+            int userErrorType = GetErrorType(createdUser.Error!.Type);
             return Problem(
                 type: userErrorType.ToString(),
                 title: "User creation failed",
@@ -58,9 +58,9 @@ public class UsersController(IUserDbAction users) : ControllerBase
     public async Task<ActionResult<UserResponse>> Update(Guid id, [FromBody] UpdateUserRequest request, CancellationToken ct)
     {
         Result<User> updatedUser = await users.UpdateUser(request.ToModel(id), ct);
-        int updatedUserErrorType = GetErrorType(updatedUser.Error!.Type);
-        if(!updatedUser.IsSuccess)
+        if (!updatedUser.IsSuccess)
         {
+            int updatedUserErrorType = GetErrorType(updatedUser.Error!.Type);
             return Problem(
                 type: updatedUserErrorType.ToString(),
                 title: "User update failed",
@@ -75,9 +75,9 @@ public class UsersController(IUserDbAction users) : ControllerBase
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         Result deleteUser = await users.DeleteUser(id, ct);
-        int deletedUserErrorType  = GetErrorType(deleteUser.Error!.Type);
         if (!deleteUser.IsSuccess)
         {
+            int deletedUserErrorType = GetErrorType(deleteUser.Error!.Type);
             return Problem(
                 type: deletedUserErrorType.ToString(),
                 title: "User deletion failed",
